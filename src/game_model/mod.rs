@@ -8,51 +8,26 @@ mod cards;
 mod bidding;
 mod play;
 
-pub enum BridgeHand {
-  Dealt(Board),
-  Bidding(Auction),
-  Play(Play),
-  Complete(CompleteHand),
-}
-
-impl BridgeHand {
-  pub fn new(board_num: u32) -> BridgeHand {
-    let deck = Deck::new();
-    let hands = deck.deal_hands();
-    let board = Board { hands, number: board_num };
-    BridgeHand::Dealt(board)
-  }
-
-  pub fn start_bidding(self) -> Self {
-    if let BridgeHand::Dealt(board) = self {
-      let auction = Auction::new(board);
-      BridgeHand::Bidding(auction)
-    } else {
-      self
-    }
-  }
-
-  pub fn board(&self) -> &Board {
-    match self {
-      BridgeHand::Dealt(board) => &board,
-      BridgeHand::Bidding(auction) => auction.board(),
-      BridgeHand::Play(play) => play.board(),
-      BridgeHand::Complete(complete) => match complete {
-        CompleteHand::Played(played) => played.board(),
-        CompleteHand::Passout(board) => &board,
-      },
-    }
-  }
-
-  fn player_hand(&self, seat: Seat) -> &PlayerHand {
-    &self.board().hands[seat]
-  }
-}
-
 #[derive(Debug)]
 pub struct Board {
   hands: EnumMap<Seat, PlayerHand>,
   number: u32,
+}
+
+impl Board {
+  pub fn new(number: u32) -> Self {
+    let deck = Deck::new();
+    let hands = deck.deal_hands();
+    Board { hands, number }
+  }
+
+  pub fn auction(self) -> Auction {
+    Auction::new(self)
+  }
+
+  pub fn player_hand(&self, seat: Seat) -> &PlayerHand {
+    &self.hands[seat]
+  }
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Enum, EnumIter)]
@@ -64,7 +39,7 @@ pub enum Seat {
 }
 
 impl Seat {
-  fn partner(&self) -> Seat {
+  pub fn partner(&self) -> Seat {
     use Seat::*;
     match self {
       North => South,
@@ -74,7 +49,7 @@ impl Seat {
     }
   }
 
-  fn is_opponent(&self, other: Seat) -> bool {
+  pub fn is_opponent(&self, other: Seat) -> bool {
     use Seat::*;
     match self {
       North => other == East || other == West,
@@ -84,7 +59,7 @@ impl Seat {
     }
   }
 
-  fn next_seat(&self) -> Self {
+  pub fn next_seat(&self) -> Self {
     use Seat::*;
     match self {
       North => East,
@@ -95,7 +70,7 @@ impl Seat {
   }
 
 
-  fn prev_seat(&self) -> Self {
+  pub fn prev_seat(&self) -> Self {
     use Seat::*;
     match self {
       North => West,

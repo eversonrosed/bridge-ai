@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
 use enum_map::{enum_map, EnumMap};
 use strum::IntoEnumIterator;
-use crate::game_model::{Board, BridgeHand, CompleteHand, Seat};
+use crate::game_model::{Board, CompleteHand, Seat};
 use crate::game_model::bidding::{Bid, Call, Contract, DoubleLevel, Strain};
 use crate::game_model::cards::{Card, Suit};
 
@@ -83,66 +83,30 @@ impl Play {
     self.declarer_tricks + self.defense_tricks == 13
   }
 
-  pub fn complete(self) -> BridgeHand {
-    let target = self.contract.level() + 6;
-    let made = self.declarer_tricks;
-    let result = if made >= target {
-      HandResult::Made(made - target)
+  pub fn complete(self) -> Result<CompleteHand, Self> {
+    if self.is_complete() {
+      let target = self.contract.level() + 6;
+      let made = self.declarer_tricks;
+      let result = if made >= target {
+        HandResult::Made(made - target)
+      } else {
+        HandResult::Set(target - made)
+      };
+      Ok(CompleteHand::Played(PlayedHand {
+        board: self.board,
+        auction: self.auction,
+        dealer: self.dealer,
+        contract: Some(self.contract),
+        tricks: self.tricks,
+        result,
+      }))
     } else {
-      HandResult::Set(target - made)
-    };
-    BridgeHand::Complete(CompleteHand::Played(PlayedHand {
-      board: self.board,
-      auction: self.auction,
-      dealer: self.dealer,
-      contract: Some(self.contract),
-      tricks: self.tricks,
-      result,
-    }))
+      Err(self)
+    }
   }
 
   pub fn board(&self) -> &Board {
     &self.board
-  }
-}
-
-impl Display for Play {
-  fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-    let dummy = self.contract.declarer().partner();
-    let dummy_hand = self.board.hands[dummy].clone();
-    let dummy_sorted = dummy_hand.sort();
-    let dummy_text: EnumMap<Suit, String> = dummy_sorted.map(|suit, cards| {
-      cards.iter().fold(suit.to_string() + " ", |s, card| s + &card.rank().to_string())
-    });
-    let last_trick: EnumMap<Seat, String> = self.tricks.last()
-        .map_or(EnumMap::default(), |trick| {
-          trick.cards.map(|_, opt_card| opt_card.map_or(String::new(), |card| card.to_string()))
-        });
-    match dummy {
-      Seat::North => {
-        for suit in Suit::iter().rev() {
-          writeln!(f, "{:5}{:15}", "", dummy_text[suit])?;
-        }
-        writeln!(f, "{:9}NORTH", "")?;
-        writeln!(f, "{:11}{}", "", last_trick[Seat::North])?;
-        writeln!(f, "WEST {:2}     {:2} EAST", last_trick[Seat::West], last_trick[Seat::East])?;
-        writeln!(f, "{:11}{}", "", last_trick[Seat::South])?;
-        writeln!(f, "{:9}SOUTH", "")?;
-      }
-      Seat::East => {}
-      Seat::South => {
-        writeln!(f, "{:9}NORTH", "")?;
-        writeln!(f, "{:11}{}", "", last_trick[Seat::North])?;
-        writeln!(f, "WEST {:2}     {:2} EAST", last_trick[Seat::West], last_trick[Seat::East])?;
-        writeln!(f, "{:11}{}", "", last_trick[Seat::South])?;
-        writeln!(f, "{:9}SOUTH", "")?;
-        for suit in Suit::iter().rev() {
-          writeln!(f, "{:5}{:15}", "", dummy_text[suit])?;
-        }
-      }
-      Seat::West => {}
-    }
-    Ok(())
   }
 }
 

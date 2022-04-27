@@ -1,3 +1,3 @@
-pub enum BridgeView {
-  // todo
+pub struct BridgeView {
+
 }

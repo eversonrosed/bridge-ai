@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::collections::VecDeque;
 use std::fmt::{Display, Formatter};
 use enum_map::{Enum, EnumMap};
-use crate::game_model::{Board, BridgeHand, CompleteHand, dealer, Seat};
+use crate::game_model::{Board, CompleteHand, dealer, Seat};
 use crate::game_model::cards::Suit;
 use crate::game_model::play::Play;
 
@@ -105,7 +105,7 @@ impl Auction {
     }
   }
 
-  pub fn complete(self) -> BridgeHand {
+  pub fn complete(self) -> Result<Result<Play, CompleteHand>, Self> {
     if self.is_complete() {
       if let Some((bid, _)) = self.highest_bid {
         let declarer: Seat = self.declarers[bid.strain].unwrap(); // a declarer is always set
@@ -117,12 +117,12 @@ impl Auction {
           self.doubled,
           declarer
         );
-        BridgeHand::Play(play)
+        Ok(Ok(play))
       } else {
-        BridgeHand::Complete(CompleteHand::Passout(self.board))
+        Ok(Err(CompleteHand::Passout(self.board)))
       }
     } else {
-      BridgeHand::Bidding(self)
+      Err(self)
     }
   }
 
