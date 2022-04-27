@@ -5,6 +5,7 @@ use itertools::Product;
 use rand::prelude::*;
 use strum::EnumIter;
 use strum::IntoEnumIterator;
+use crate::game_model::bidding::Strain;
 use crate::game_model::Seat;
 
 #[derive(Debug)]
@@ -60,6 +61,10 @@ impl PlayerHand {
     }
     sorted_hand
   }
+
+  pub fn has_any(&self, suit: Suit) -> bool {
+    self.cards.iter().any(|card| card.suit == suit)
+  }
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -73,14 +78,14 @@ impl Card {
                 wins. (This occurs when the two cards have different suits and neither is trump, so the
                 leader holds. It is assumed that `self` is always either the led suit or trump.)
    */
-  pub fn compare_with_trump(&self, other: &Card, trump: &Option<Suit>) -> Ordering {
-    if let Some(cmp) = self.partial_cmp(other) { // the cards have the same suit, so the usual order applies
+  pub fn compare_with_trump(&self, other: Card, trump: Strain) -> Ordering {
+    if let Some(cmp) = self.partial_cmp(&other) { // the cards have the same suit, so the usual order applies
       cmp
     } else { // the cards are different suits, so only one can be a trump
-      if let Some(trump_suit) = trump { // only look at trump if there is a trump suit
-        if self.suit == *trump_suit { // self is trump, so it wins
+      if let Strain::Trump(trump_suit) = trump { // only look at trump if there is a trump suit
+        if self.suit == trump_suit { // self is trump, so it wins
           Ordering::Greater
-        } else if other.suit == *trump_suit { // other is trump, so it wins
+        } else if other.suit == trump_suit { // other is trump, so it wins
           Ordering::Less
         } else { // neither is trump, so first card wins
           Ordering::Greater

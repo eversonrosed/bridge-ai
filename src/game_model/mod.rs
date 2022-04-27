@@ -1,4 +1,5 @@
 use enum_map::{Enum, EnumMap};
+use strum::EnumIter;
 use crate::game_model::bidding::Auction;
 use crate::game_model::cards::{Deck, PlayerHand};
 use crate::game_model::play::{Play, PlayedHand};
@@ -54,7 +55,7 @@ pub struct Board {
   number: u32,
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Enum)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Enum, EnumIter)]
 pub enum Seat {
   North,
   East,
@@ -73,13 +74,13 @@ impl Seat {
     }
   }
 
-  fn is_opponent(&self, other: &Seat) -> bool {
+  fn is_opponent(&self, other: Seat) -> bool {
     use Seat::*;
     match self {
-      North => *other == East || *other == West,
-      East => *other == North || *other == South,
-      South => *other == East || *other == West,
-      West => *other == North || *other == South,
+      North => other == East || other == West,
+      East => other == North || other == South,
+      South => other == East || other == West,
+      West => other == North || other == South,
     }
   }
 
@@ -90,6 +91,17 @@ impl Seat {
       East => South,
       South => West,
       West => North,
+    }
+  }
+
+
+  fn prev_seat(&self) -> Self {
+    use Seat::*;
+    match self {
+      North => West,
+      East => North,
+      South => East,
+      West => South,
     }
   }
 }

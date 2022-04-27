@@ -63,7 +63,7 @@ impl Auction {
         true
       }
       Call::Double => if let Some((_, bid_seat)) = self.highest_bid {
-        if self.current_bidder.is_opponent(&bid_seat)
+        if self.current_bidder.is_opponent(bid_seat)
             && self.doubled == DoubleLevel::Undoubled {
           self.doubled = DoubleLevel::Doubled;
           self.passes = 0;
@@ -75,7 +75,7 @@ impl Auction {
         false // can't double if there's no contract
       }
       Call::Redouble => if let Some((_, bid_seat)) = self.highest_bid {
-        if !self.current_bidder.is_opponent(&bid_seat)
+        if !self.current_bidder.is_opponent(bid_seat)
             && self.doubled == DoubleLevel::Doubled {
           self.doubled = DoubleLevel::Redoubled;
           true
