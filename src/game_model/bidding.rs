@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::collections::VecDeque;
 use std::fmt::{Display, Formatter};
 use enum_map::{Enum, EnumMap};
-use crate::game_model::{Board, dealer, HandResult, Seat, Vulnerability};
+use crate::game_model::{Seat, Vulnerability};
 use crate::game_model::cards::Suit;
 use crate::game_model::play::Play;
 

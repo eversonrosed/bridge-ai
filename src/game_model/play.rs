@@ -1,12 +1,9 @@
 use std::cmp::Ordering;
-use std::collections::VecDeque;
-use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
-use enum_map::{enum_map, EnumMap};
-use strum::IntoEnumIterator;
-use crate::game_model::{Board, HandResult, Seat};
-use crate::game_model::bidding::{Bid, Call, Contract, DoubleLevel, Strain};
-use crate::game_model::cards::{Card, PlayerHand, Suit};
+use enum_map::EnumMap;
+use crate::game_model::{HandResult, Seat};
+use crate::game_model::bidding::{Contract, Strain};
+use crate::game_model::cards::{Card, PlayerHand};
 
 #[derive(Debug)]
 pub struct Play {
@@ -26,12 +23,12 @@ impl Play {
     }
   }
 
-  pub fn make_play(&mut self, seat: Seat, card: Card, hand: &PlayerHand) -> bool {
+  pub fn make_play(&mut self, seat: Seat, card: Card) -> bool {
     // this play is a new trick if there is no incomplete trick in the trick vector
     if usize::from(self.declarer_tricks + self.defense_tricks) == self.tricks.len() {
       self.make_lead(seat, card)
     } else {
-      self.follow(seat, card, hand)
+      self.follow(seat, card)
     }
   }
 
@@ -42,19 +39,12 @@ impl Play {
     true
   }
 
-  fn follow(&mut self, seat: Seat, card: Card, hand: &PlayerHand) -> bool {
+  fn follow(&mut self, seat: Seat, card: Card) -> bool {
     let trick = self.tricks.last_mut().unwrap();
     if trick[seat].is_some() {
       return false;
     }
-    let leader = trick.leader;
-    let lead_suit = trick[leader].unwrap().suit();
-    if card.suit() == lead_suit
-        || !hand.has_any(lead_suit) {
-      trick[seat] = Some(card);
-    } else {
-      return false;
-    }
+    trick[seat] = Some(card);
     if trick.cards.iter().all(|(_, v)| v.is_some()) {
       let winner = trick.winner(self.contract.strain()).unwrap();
       if winner.is_opponent(self.declarer()) {

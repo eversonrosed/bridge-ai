@@ -65,6 +65,23 @@ impl PlayerHand {
   pub fn has_any(&self, suit: Suit) -> bool {
     self.cards.iter().any(|card| card.suit == suit)
   }
+
+  pub fn has_card(&self, card: Card) -> bool {
+    self.cards.contains(&card)
+  }
+
+  pub fn take_card(&mut self, card: Card) -> bool {
+    if let Some(idx) = self.cards.iter().position(|&c| c == card) {
+      self.cards.remove(idx);
+      true
+    } else {
+      false
+    }
+  }
+
+  pub fn add_card(&mut self, card: Card) {
+    self.cards.push(card);
+  }
 }
 
 impl Display for PlayerHand {
@@ -202,6 +219,29 @@ impl Rank {
       Rank::Queen => 'Q',
       Rank::King => 'K',
       Rank::Ace => 'A',
+    }
+  }
+}
+
+impl TryFrom<char> for Rank {
+  type Error = ();
+
+  fn try_from(value: char) -> Result<Self, Self::Error> {
+    match value {
+      '2' => Ok(Rank::Two),
+      '3' => Ok(Rank::Three),
+      '4' => Ok(Rank::Four),
+      '5' => Ok(Rank::Five),
+      '6' => Ok(Rank::Six),
+      '7' => Ok(Rank::Seven),
+      '8' => Ok(Rank::Eight),
+      '9' => Ok(Rank::Nine),
+      'T' | 't' => Ok(Rank::Ten),
+      'J' | 'j' => Ok(Rank::Jack),
+      'Q' | 'q' => Ok(Rank::Queen),
+      'K' | 'k' => Ok(Rank::King),
+      'A' | 'a' => Ok(Rank::Ace),
+      _ => Err(())
     }
   }
 }

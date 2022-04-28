@@ -37,9 +37,9 @@ fn make_some_plays() {
   assert!(auction.is_complete());
   let mut play = auction.play().unwrap();
   assert_eq!(play.declarer(), Seat::North);
-  play.make_play(Seat::East, Card::from(Suit::Spades, Rank::Queen), board.player_hand(Seat::East));
-  play.make_play(Seat::South, Card::from(Suit::Spades, Rank::Two), board.player_hand(Seat::South));
-  play.make_play(Seat::West, Card::from(Suit::Spades, Rank::Five), board.player_hand(Seat::West));
-  play.make_play(Seat::North, Card::from(Suit::Spades, Rank::Ace), board.player_hand(Seat::North));
+  play.make_play(Seat::East, Card::from(Suit::Spades, Rank::Queen));
+  play.make_play(Seat::South, Card::from(Suit::Spades, Rank::Two));
+  play.make_play(Seat::West, Card::from(Suit::Spades, Rank::Five));
+  play.make_play(Seat::North, Card::from(Suit::Spades, Rank::Ace));
   println!("{:?}", play.tricks()[0].winner(Strain::Notrump));
 }
