@@ -1,12 +1,40 @@
 use enum_map::{Enum, EnumMap};
 use strum::EnumIter;
-use crate::game_model::bidding::Auction;
+use crate::game_model::bidding::{Auction, Contract};
 use crate::game_model::cards::{Deck, PlayerHand};
-use crate::game_model::play::{Play, PlayedHand};
+use crate::game_model::play::Play;
 
-mod cards;
-mod bidding;
-mod play;
+pub mod cards;
+pub mod bidding;
+pub mod play;
+
+pub struct BridgeGame {
+  board: Board,
+  auction: Auction,
+  play: Option<Play>,
+  result: Option<HandResult>,
+}
+
+impl BridgeGame {
+  pub fn new(board_num: u32) -> Self {
+    let board = Board::new(board_num);
+    let auction = Auction::new(dealer(board_num));
+    BridgeGame {
+      board,
+      auction,
+      play: None,
+      result: None,
+    }
+  }
+
+  pub fn board(&self) -> &Board {
+    &self.board
+  }
+
+  pub fn player_hand(&self, seat: Seat) -> &PlayerHand {
+    self.board().player_hand(seat)
+  }
+}
 
 #[derive(Debug)]
 pub struct Board {
@@ -19,10 +47,6 @@ impl Board {
     let deck = Deck::new();
     let hands = deck.deal_hands();
     Board { hands, number }
-  }
-
-  pub fn auction(self) -> Auction {
-    Auction::new(self)
   }
 
   pub fn player_hand(&self, seat: Seat) -> &PlayerHand {
@@ -81,9 +105,27 @@ impl Seat {
   }
 }
 
-pub enum CompleteHand {
-  Played(PlayedHand),
-  Passout(Board),
+#[derive(Debug)]
+pub enum HandResult {
+  Passout,
+  Played(Contract, i8),
+}
+
+impl HandResult {
+  pub fn score(&self, vul: Vulnerability) -> i32 {
+    match self {
+      HandResult::Passout => 0,
+      HandResult::Played(contract, diff) => contract.score(*diff, vul)
+    }
+  }
+}
+
+#[derive(Debug)]
+pub enum Vulnerability {
+  Neither,
+  NS,
+  EW,
+  Both
 }
 
 pub fn dealer(board_num: u32) -> Seat {

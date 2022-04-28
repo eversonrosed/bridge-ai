@@ -7,6 +7,8 @@ edition = "2021"
 
 [dependencies]
 enum-map = "2.1.0"
-itertools = "0.4.8"
+itertools = "0.10.3"
+cursive = "0.17.0"
+tui = "0.17.0"
 rand = "0.8.5"
 strum = { version = "0.24.0", features = ["derive"] }
