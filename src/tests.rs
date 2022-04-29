@@ -12,7 +12,6 @@ fn deal_hands() {
 
 #[test]
 fn make_some_bids() {
-  let board = Board::new(1);
   let mut auction = Auction::new(dealer(1));
   auction.make_call(Call::Bid(Bid::from(1, Strain::Notrump)));
   auction.make_call(Call::Pass);
@@ -26,7 +25,6 @@ fn make_some_bids() {
 
 #[test]
 fn make_some_plays() {
-  let board = Board::new(1);
   let mut auction = Auction::new(dealer(1));
   auction.make_call(Call::Bid(Bid::from(1, Strain::Notrump)));
   auction.make_call(Call::Pass);

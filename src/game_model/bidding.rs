@@ -140,7 +140,7 @@ impl Display for Auction {
     writeln!(f, "North   East    South   West")?;
     let mut current_seat = Seat::North;
     while current_seat != self.dealer { // align first call
-      write!(f, "        ");
+      write!(f, "        ")?;
       current_seat = current_seat.next_seat();
     }
     for call in self.calls.iter() {

@@ -3,9 +3,9 @@ use std::ops::{Index, IndexMut};
 use enum_map::EnumMap;
 use crate::game_model::{HandResult, Seat};
 use crate::game_model::bidding::{Contract, Strain};
-use crate::game_model::cards::{Card, PlayerHand};
+use crate::game_model::cards::Card;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Play {
   contract: Contract,
   tricks: Vec<Trick>,
@@ -56,6 +56,14 @@ impl Play {
     true
   }
 
+  pub fn contract(&self) -> Contract {
+    self.contract
+  }
+
+  pub fn declarer_tricks(&self) -> u8 {
+    self.declarer_tricks
+  }
+
   pub fn declarer(&self) -> Seat {
     self.contract.declarer()
   }
@@ -84,6 +92,12 @@ impl Play {
 pub struct Trick {
   cards: EnumMap<Seat, Option<Card>>,
   leader: Seat,
+}
+
+impl Trick {
+  pub fn leader(&self) -> Seat {
+    self.leader
+  }
 }
 
 impl Trick {

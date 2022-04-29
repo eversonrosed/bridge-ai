@@ -88,7 +88,7 @@ impl Display for PlayerHand {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     let sorted = self.sort();
     let suits = vec![Suit::Spades, Suit::Hearts, Suit::Diamonds, Suit::Clubs];
-    for (i, suit) in suits.iter().enumerate() {
+    for suit in suits.iter() {
       write!(f, "{} ", &suit.to_string())?;
       let suit_cards = sorted[*suit].iter().fold(String::new(), |mut acc, rk| {
         acc.push(rk.rank_char());

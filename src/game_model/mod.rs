@@ -36,7 +36,7 @@ impl BridgeGame {
   }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Board {
   hands: EnumMap<Seat, PlayerHand>,
   number: u32,
